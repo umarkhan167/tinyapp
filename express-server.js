@@ -50,7 +50,7 @@ app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   console.log(longURL)
-  if (shortURL === undefined) {
+  if (shortURL === undefined || longURL === undefined) {
     return res.redirect("/*");
   }
   const templateVars = {shortURL, longURL: longURL};
@@ -62,7 +62,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.send("Hello there!");
 });
 
 app.get("/hello", (req, res) => {
