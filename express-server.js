@@ -20,7 +20,6 @@ console.log(generateRandomString())
 //STRING GENERATOR FUNCTION----------------------------------
 
 
-
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -28,10 +27,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
   };
 
-// app.post("/urls", (req, res) => {
-//   console.log(req.body);  // Log the POST request body to the console
-//   res.send("Ok");         // Respond with 'Ok' (we will replace this)
-// });
+
+
+app.post('/urls', (req, res) => {
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  console.log(urlDatabase);// Log the POST request body to the console
+  res.redirect(`/u/${shortURL}`);// Respond with 'Ok' (we will replace this)
+});
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -42,8 +46,14 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+  console.log(longURL)
+  if (shortURL === undefined) {
+    return res.redirect("/*");
+  }
+  const templateVars = {shortURL, longURL: longURL};
   res.render("urls_shows", templateVars);
 });
 
@@ -58,6 +68,10 @@ app.get("/", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
+app.use("/*", (req, res) => {
+  res.status(404).send("Sorry page not found, please enter valid url.")
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
