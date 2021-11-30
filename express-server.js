@@ -27,14 +27,17 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
   };
 
-
-
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
   console.log(urlDatabase);// Log the POST request body to the console
   res.redirect(`/u/${shortURL}`);// Respond with 'Ok' (we will replace this)
+});
+
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
