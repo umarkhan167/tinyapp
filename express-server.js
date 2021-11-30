@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser')
+
+app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: true}));
 
 //STRING GENERATOR FUNCTION----------------------------------
@@ -35,6 +38,17 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${shortURL}`);// Respond with 'Ok' (we will replace this)
 });
 
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect('/urls');
+});
+
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
@@ -48,12 +62,15 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const username = req.cookies["username"];
+  const templateVars = { urls: urlDatabase, username};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const username = req.cookies["username"];
+  const templateVars = { username};
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -63,7 +80,8 @@ app.get("/urls/:shortURL", (req, res) => {
   if (shortURL === undefined || longURL === undefined) {
     return res.redirect("/*");
   }
-  const templateVars = {shortURL, longURL: longURL};
+  const username = req.cookies["username"];
+  const templateVars = {shortURL, longURL: longURL, username};
   res.render("urls_shows", templateVars);
 });
 
