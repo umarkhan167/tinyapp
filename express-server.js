@@ -26,13 +26,20 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
   };
-
+// /u/:shortURL should redirect to the long url page
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
   console.log(urlDatabase);// Log the POST request body to the console
-  res.redirect(`/u/${shortURL}`);// Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortURL}`);// Respond with 'Ok' (we will replace this)
+});
+
+app.post('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL
+  res.redirect("/urls");
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
@@ -49,7 +56,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   console.log(longURL)
