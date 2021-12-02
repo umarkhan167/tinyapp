@@ -1,8 +1,19 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a> 
-    <% if(username) { %> 
-    <h6><%= username %></h6>
+    
+    <% if(user) { %>
+      <h6><%= user.email %></h6>
+      <form method="POST" action="/logout"><button  type="submit">Logout</button></form>
+      
+    <% } else { %>  
+    <button type="submit"><a href="http://localhost:8080/register">Register</a></button>
+    <button type="submit"><a href="http://localhost:8080/login">Login</a></button>
+    <% } %>
+
+
+    <!-- <% if(user) { %> 
+    <h6><%= user.email %></h6>
     <form method="POST" action="/logout">
       <button type="submit">Logout</button>
     </form>
@@ -11,7 +22,9 @@
       <input name="username" placeholder="Username">
       <button type="submit">Login</button>
     </form>
-    <% } %>
+    <% } %> -->
+
+
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>    

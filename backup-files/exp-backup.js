@@ -64,8 +64,8 @@ app.post('/register', (req, res) => {
   } else if (emailChecker()){
     res.render("Email already exists. Pleases try again.")
   } else {
-    const user_id = req.body.id
-    res.cookie("User ID", user_id)
+    // const user_id = req.body.id
+    // res.cookie("User ID", user_id)
     res.redirect("/urls")
   }
   console.log(users)
