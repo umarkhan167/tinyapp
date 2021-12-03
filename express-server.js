@@ -148,7 +148,10 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const userID = req.cookies.user_id;
+  if (userID) { 
+    delete urlDatabase[req.params.shortURL];
+  }
   res.redirect("/urls");
 });
 
@@ -183,7 +186,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["user_id"];
   if (userID == null) {
-    return res.redirect("/urls")
+    return res.redirect("/login")
   }
   const user = users[userID];
   const templateVars = {user};
