@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 // const cookieParser = require('cookie-parser')
 const bcrypt = require('bcrypt');
 const cookieSession = require("cookie-session");
+const getUserByEmail = require('./helper') 
 
 // app.use(cookieParser)
 
@@ -44,33 +45,6 @@ const urlsForUser = function(userID) {
   return userUrls
 }
 
-
-//EMAIL CHECKER/HELPER FUNCTION
-const getUserByEmail = function(email, database) {
-  for (let id in database) {
-    const user = database[id]
-    if (user.email === email) {
-      return user
-    }
-  }    
-  return null
-}
-
-// //USER LOGIN CHECKER
-// const userLoginChecker = function(email, password) {
-//   let userData = undefined;
-//   for (let userID in users) {
-//     if (users[userID].email === email) {
-//       userData = users[userID];
-//     }
-//   }
-//   const hashedPassword = bcrypt.hashSync(password, 10);
-//   if (userData && bcrypt.compareSync(password, hashedPassword)) {
-//     return userData;
-//   } else {
-//     return undefined
-//   }
-// }
 
 //Object that stores user data
 const users = {
