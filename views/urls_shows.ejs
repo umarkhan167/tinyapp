@@ -13,6 +13,10 @@
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="<%= longURL %>" target="_blank"><%= shortURL %></a></p>
+        <form method="GET" action="/urls">
+          <button>My URLs</button>
+        </form>
+        
         <!-- <p class="card-newURL">New URL: <a href="#">newURL</a></p>
       </div> -->
     <div class="card-footer text-muted">
