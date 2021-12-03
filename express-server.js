@@ -45,33 +45,32 @@ const urlsForUser = function(userID) {
 }
 
 
-//EMAIL CHECKER
-const emailChecker = function(email) {
-  for (let userID in users) {
-    console.log(userID)
-    if (users[userID].email === email) {
-      return true
+//EMAIL CHECKER/HELPER FUNCTION
+const getUserByEmail = function(email, database) {
+  for (let id in database) {
+    const user = database[id]
+    if (user.email === email) {
+      return user
     }
   }    
-  return false
-  //need to fix the emailChecker so it does not allow registrations for emails that are already in users object database.
+  return null
 }
 
-//USER LOGIN CHECKER
-const userLoginChecker = function(email, password) {
-  let userData = undefined;
-  for (let userID in users) {
-    if (users[userID].email === email) {
-      userData = users[userID];
-    }
-  }
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  if (userData && bcrypt.compareSync(password, hashedPassword)) {
-    return userData;
-  } else {
-    return undefined
-  }
-}
+// //USER LOGIN CHECKER
+// const userLoginChecker = function(email, password) {
+//   let userData = undefined;
+//   for (let userID in users) {
+//     if (users[userID].email === email) {
+//       userData = users[userID];
+//     }
+//   }
+//   const hashedPassword = bcrypt.hashSync(password, 10);
+//   if (userData && bcrypt.compareSync(password, hashedPassword)) {
+//     return userData;
+//   } else {
+//     return undefined
+//   }
+// }
 
 //Object that stores user data
 const users = {
@@ -87,6 +86,7 @@ const users = {
   }
 }
 
+
 //Post route for register page
 app.post('/register', (req, res) => {
   const {email, password} = req.body;
@@ -95,7 +95,7 @@ app.post('/register', (req, res) => {
    if (!email || !password) {
     res.status(400);
     res.send("Please enter email and password.")
-  } else if (emailChecker(email)){
+  } else if (getUserByEmail(email)){
     res.status(400);
     res.send("Email already exists. Pleases try again.")
   } else {
@@ -149,8 +149,11 @@ app.post('/logout', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = userLoginChecker(email, password);
-  if (!user) return res.status(403).send("Incorrect username or password, please try again.");
+  const user = getUserByEmail(email, users);
+  console.log(user)
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("Incorrect username or password, please try again.");
+  }
   req.session.user_id = user.id
   // res.cookie("user_id", user.id)
   res.redirect('/urls');
@@ -184,12 +187,11 @@ app.get('/login', (req, res) => {
 //GET request for the register page
 app.get('/register', (req, res) => {
   const userID = req.session["user_id"];
-  if (userID != null) {
+  const user = users[userID];
+  if (user != null) {
     return res.redirect("/urls")
   }
-  const user = users[userID];
   const templateVars = { urls: urlDatabase, user};
-
   res.render("urls_register", templateVars);
 })
 
