@@ -2,9 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
-const getUserByEmail = require('./helper') 
+const getUserByEmail = require("./helper");
 
 app.use(cookieSession({
   name: 'session',
@@ -25,7 +25,6 @@ function generateRandomString() {
   }
   return result;
 }
-console.log(generateRandomString())
 
 //GET URLS FOR A USER FUNCTION
 const urlsForUser = function(userID) {
@@ -35,7 +34,7 @@ const urlsForUser = function(userID) {
       userUrls[url] = urlDatabase[url];
     }
   }
-  return userUrls
+  return userUrls;
 }
 
 //ALL DATABASES
@@ -62,7 +61,7 @@ const urlDatabase = {
 
 //ALL POST ROUTES
 app.post('/urls', (req, res) => {
-  const userID = req.session.user_id
+  const userID = req.session.user_id;
   console.log(userID);
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
@@ -88,7 +87,7 @@ app.post('/register', (req, res) => {
       password: hashedPassword
     }
     req.session.user_id = id;
-    res.redirect("/urls")
+    res.redirect("/urls");
   }
 });
 
@@ -96,7 +95,6 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email, users);
-  console.log(user)
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Incorrect username or password, please try again.");
   }
@@ -110,7 +108,7 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/urls/:shortURL', (req, res) => {
-  const userID = req.session.user_id
+  const userID = req.session.user_id;
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = {longURL, userID};
@@ -138,7 +136,7 @@ app.get('/register', (req, res) => {
   const userID = req.session["user_id"];
   const user = users[userID];
   if (user != null) {
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   const templateVars = { urls: urlDatabase, user};
   res.render("urls_register", templateVars);
@@ -155,7 +153,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const userID = req.session["user_id"];
   if (userID == null) {
-    return res.redirect("/login")
+    return res.redirect("/login");
   }
   const user = users[userID];
   const templateVars = {user};
@@ -165,7 +163,6 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
-  console.log(longURL)
   if (shortURL === undefined || longURL === undefined) {
     return res.redirect("/*");
   }
@@ -181,7 +178,7 @@ app.get("/urls.json", (req, res) => {
 
 //ERROR REDIRECT
 app.use("/*", (req, res) => {
-  res.status(404).send("Sorry page not found, please enter valid url.")
+  res.status(404).send("Sorry page not found, please enter valid url.");
 })
 
 app.listen(PORT, () => {
