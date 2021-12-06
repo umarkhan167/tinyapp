@@ -160,16 +160,29 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   if (shortURL === undefined || longURL === undefined) {
     return res.redirect("/*");
   }
+  res.redirect(longURL);
+})
+
+app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session["user_id"];
-  const user = users[userID];
-  const templateVars = {shortURL, longURL: longURL, user};
-  res.render("urls_shows", templateVars);
+  if (userID !== undefined) { 
+    const shortURL = req.params.shortURL;
+    const longURL = urlDatabase[shortURL].longURL;
+    if (shortURL === undefined || longURL === undefined) {
+    return res.redirect("/*");
+    }
+    const user = users[userID];
+    const templateVars = {shortURL, longURL: longURL, user};
+    res.render("urls_shows", templateVars);
+  } else {
+    return res.redirect("/*");
+  }
 });
 
 app.get("/urls.json", (req, res) => {
