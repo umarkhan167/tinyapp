@@ -4,7 +4,8 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
-const getUserByEmail = require("./helper");
+const {getUserByEmail, generateRandomString, urlsForUser} = require("./helper");
+
 
 app.use(cookieSession({
   name: 'session',
@@ -14,28 +15,6 @@ app.use(cookieSession({
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
-
-//STRING GENERATOR FUNCTION
-function generateRandomString() {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for ( var i = 0; i < 6; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * 
-    characters.length));
-  }
-  return result;
-}
-
-//GET URLS FOR A USER FUNCTION
-const urlsForUser = function(userID) {
-  const userUrls = {};
-  for (let url in urlDatabase) {
-    if (userID === urlDatabase[url].userID) {
-      userUrls[url] = urlDatabase[url];
-    }
-  }
-  return userUrls;
-}
 
 //ALL DATABASES
 const users = {
@@ -62,11 +41,9 @@ const urlDatabase = {
 //ALL POST ROUTES
 app.post('/urls', (req, res) => {
   const userID = req.session.user_id;
-  console.log(userID);
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = {longURL, userID};
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -144,7 +121,7 @@ app.get('/register', (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userID = req.session["user_id"];
-  const userUrls = urlsForUser(userID);
+  const userUrls = urlsForUser(userID, urlDatabase);
   const user = users[userID];
   const templateVars = { urls: userUrls, user};
   res.render("urls_index", templateVars);
@@ -171,18 +148,21 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session["user_id"];
-  if (userID !== undefined) { 
-    const shortURL = req.params.shortURL;
-    const longURL = urlDatabase[shortURL].longURL;
-    if (shortURL === undefined || longURL === undefined) {
-    return res.redirect("/*");
-    }
-    const user = users[userID];
-    const templateVars = {shortURL, longURL: longURL, user};
-    res.render("urls_shows", templateVars);
-  } else {
+  if (!userID) {
     return res.redirect("/*");
   }
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL].longURL;
+  if (shortURL === undefined || longURL === undefined) {
+  return res.redirect("/*");
+  }
+  if (userID !== urlDatabase[shortURL].userID) {
+    return res.redirect("/*");
+  }
+  
+  const user = users[userID];
+  const templateVars = {shortURL, longURL: longURL, user};
+  res.render("urls_shows", templateVars);
 });
 
 app.get("/urls.json", (req, res) => {
